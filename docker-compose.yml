@@ -29,5 +29,23 @@ services:
       -c "CREATE EXTENSION IF NOT EXISTS vector;"
     restart: "no"
 
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: python_app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      bootstrap_vector_ext:
+        condition: service_completed_successfully
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/rag
+    restart: unless-stopped
+
 volumes:
   postgres_data:
